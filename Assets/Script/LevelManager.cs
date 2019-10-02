@@ -26,12 +26,16 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    public void ToggleScaleAtIndex(int index)
+    public bool ContainsColorAtIndex(int coloIndex)
     {
-        ECubeColor color = _cubesOrderList[index];
-        CubeManager.Instance.ToggleScale(color);
+        return coloIndex >= 0 && coloIndex < _cubesOrderList.Count;
     }
-    
+
+    public ECubeColor GetColorAtIndex(int colorIndex)
+    {
+        return _cubesOrderList[colorIndex];
+    }
+
     public void ShuffleCubes() {
         ShuffleCubeOrderList();
         ReorganizeCubesInTheScene();
@@ -53,23 +57,30 @@ public class LevelManager : MonoBehaviour
     
     private void ReorganizeCubesInTheScene()
     {
-        _cubesOrderList.ForEach(cubeColor =>
+        for (int i = 0; i < _cubesOrderList.Count; i++)
         {
-            TestCube cube = CubeManager.Instance.GetCubeByItsColor(cubeColor);
+            ECubeColor color = _cubesOrderList[i];
+            TestCube cube = CubeManager.Instance.GetCubeByItsColor(color);
             if (cube != null)
             {
-                RefreshCubePosition(cube);
+                SetCubePositionByItsIndex(cube, i);
             }
-        });
+        }
     }
     
-    public void RefreshCubePosition(TestCube cube)
+    public void PlaceCube(TestCube cube)
     {
-        Vector3 position = GetScenePositionForColor(cube.CubeColor);
-        cube.transform.position = position;
+        int index = FindOrAddColorIndex(cube.CubeColor);
+        SetCubePositionByItsIndex(cube, index);
     }
 
-    private Vector3 GetScenePositionForColor(ECubeColor cubeColor)
+    private void SetCubePositionByItsIndex(TestCube cube, int colorIndex)
+    {
+        Vector3 cubePosition = GetScenePositionForIndex(colorIndex);
+        cube.transform.position = cubePosition;
+    }
+
+    private int FindOrAddColorIndex(ECubeColor cubeColor)
     {
         int index = _cubesOrderList.FindIndex(color => color.Equals(cubeColor));
         if (index == -1)
@@ -79,12 +90,12 @@ public class LevelManager : MonoBehaviour
             _cubesOrderList.Add(cubeColor);
         }
 
-        return GetScenePositionForIndex(index);
+        return index;
     }
 
-    private Vector3 GetScenePositionForIndex(int index)
+    private Vector3 GetScenePositionForIndex(int colorIndex)
     {
-        return new Vector3(index * 2, 0, 0);
+        return new Vector3(colorIndex * 2, 0, 0);
     }
 
     public override string ToString()

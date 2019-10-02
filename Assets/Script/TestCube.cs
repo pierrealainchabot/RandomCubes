@@ -12,7 +12,7 @@ public class TestCube : MonoBehaviour
         _originalScale = transform.localScale;
         
         CubeManager.Instance.RegisterCube(this);
-        LevelManager.Instance.RefreshCubePosition(this);
+        LevelManager.Instance.PlaceCube(this);
     }
 
     public void ToggleScale()
